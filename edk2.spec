@@ -5,13 +5,13 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 2
+Release: 4
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
 Source0: edk2-%{release_tag}.tar.gz
 Source1: openssl-%{openssl_version}-hobbled.tar.xz
-BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc
+BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm
 
 %description
 EDK II is a modern, feature-rich, cross-platform firmware development environment for the UEFI and PI specifications. 
@@ -43,7 +43,7 @@ EFI Development Kit II AARCH64 UEFI Firmware
 %endif
 
 %ifarch x86_64
-%package ovfm
+%package ovmf
 Summary: Open Virtual Machine Firmware
 BuildArch: noarch
 %description ovmf
@@ -51,7 +51,7 @@ EFI Development Kit II Open Virtual Machine Firmware (x64)
 %endif
 
 %ifarch %{ix86}
-%package ovfm-ia32
+%package ovmf-ia32
 Summary: Open Virtual Machine Firmware
 BuildArch: noarch
 %description ovmf-ia32
@@ -190,8 +190,8 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %files ovmf
 %license OvmfPkg/License.txt
 %license LICENSE.openssl
-%dir /usr/share/%{name}
-%dir /usr/share/%{name}/ovmf
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/ovmf
 %endif
 
 %ifarch %{ix86}
@@ -202,7 +202,14 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Tue Nov 26 2019 openEuler Buildteam <buildteam@openeuler.org> - 201908-4
+- add build requires of nasm
+
+* Tue Nov 26 2019 openEuler Buildteam <buildteam@openeuler.org> - 201908-3
+- Correct name of package ovmf
+
 * Mon Sep 30 2019  zhanghailiang <zhang.zhanghailiang@huawei.com> - 201908-2
 - Enable IPv6 suppport and Modify Release number to 2
+
 * Wed Sep 18 2019 openEuler Buildteam <buildteam@openeuler.org> - 201908-1
 - Package init
