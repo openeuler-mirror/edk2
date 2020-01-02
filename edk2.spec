@@ -1,16 +1,23 @@
 %global stable_date 201908
 %global release_tag edk2-stable%{stable_date}
-%global openssl_version 1.1.1c
+%global openssl_version 1.1.1d
 %global _python_bytecompile_extra 0
 
 Name: edk2
 Version: %{stable_date}
-Release: 4
+Release: 5
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
 Source0: edk2-%{release_tag}.tar.gz
-Source1: openssl-%{openssl_version}-hobbled.tar.xz
+Source1: openssl-%{openssl_version}.tar.gz
+Patch1:  0001-CryptoPkg-OpensslLib-Update-process_files.pl-to-gene.patch
+Patch2:  0002-CryptoPkg-Upgrade-OpenSSL-to-1.1.1d.patch
+Patch3:  0003-CryptoPkg-OpensslLib-improve-INF-file-consistency.patch
+Patch4:  0004-CryptoPkg-OpensslLib.inf-list-OpenSSL-local-header-m.patch
+# This patch is an openssl upstream patch to fix build error
+Patch5:  0005-crypto-threads_none.c-fix-syntax-error-in-openssl_ge.patch
+
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm
 
 %description
@@ -59,8 +66,9 @@ EFI Development Kit II Open Virtual Machine Firmware (ia32)
 %endif
 
 %prep
-%autosetup -n edk2-%{release_tag} -p1
-tar -Jxf %{SOURCE1} -C CryptoPkg/Library/OpensslLib/openssl --strip-components=1
+%setup -n edk2-%{release_tag}
+tar -xf %{SOURCE1} -C CryptoPkg/Library/OpensslLib/openssl --strip-components=1
+%autopatch -p1
 
 %build
 NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
@@ -202,6 +210,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Mon Dec 30 2019 Heyi Guo <buildteam@openeuler.org> - 201908-5
+- Upgrade openssl to 1.1.1d
+
 * Tue Nov 26 2019 openEuler Buildteam <buildteam@openeuler.org> - 201908-4
 - add build requires of nasm
 

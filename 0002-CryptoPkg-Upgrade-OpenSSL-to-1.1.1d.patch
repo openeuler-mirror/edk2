@@ -1,0 +1,149 @@
+From 69cdca469d5c071ca99f0ab45b7b06192095b652 Mon Sep 17 00:00:00 2001
+From: Shenglei Zhang <shenglei.zhang@intel.com>
+Date: Mon, 21 Oct 2019 15:53:42 +0800
+Subject: [PATCH 2/4] CryptoPkg: Upgrade OpenSSL to 1.1.1d
+
+Upgrade openssl from 1.1.1b to 1.1.1d.
+Something needs to be noticed is that, there is a bug existing in the
+released 1_1_1d version(894da2fb7ed5d314ee5c2fc9fd2d9b8b74111596),
+which causes build failure. So we switch the code base to a usable
+version, which is 2 commits later than the stable tag.
+Now we use the version c3656cc594daac8167721dde7220f0e59ae146fc.
+This log is to fix the build failure.
+https://bugzilla.tianocore.org/show_bug.cgi?id=2226
+
+Besides, the absense of "DSO_NONE" in dso_conf.h causes build failure
+in OvmfPkg. So update process_files.pl to generate information from
+"crypto/include/internal/dso_conf.h.in".
+
+shm.h and utsname.h are added to avoid GCC build failure.
+
+Cc: Jian J Wang <jian.j.wang@intel.com>
+Cc: Xiaoyu Lu <xiaoyux.lu@intel.com>
+Cc: Liming Gao <liming.gao@intel.com>
+Signed-off-by: Shenglei Zhang <shenglei.zhang@intel.com>
+Reviewed-by: Jian J Wang <jian.j.wang@intel.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Tested-by: Laszlo Ersek <lersek@redhat.com>
+---
+ .gitmodules                                   |  3 ---
+ CryptoPkg/Library/Include/internal/dso_conf.h | 16 ++++++++++++++++
+ CryptoPkg/Library/Include/sys/shm.h           |  9 +++++++++
+ CryptoPkg/Library/Include/sys/utsname.h       |  9 +++++++++
+ CryptoPkg/Library/OpensslLib/process_files.pl | 17 +++++++++++++++--
+ 5 files changed, 49 insertions(+), 5 deletions(-)
+ create mode 100644 CryptoPkg/Library/Include/sys/shm.h
+ create mode 100644 CryptoPkg/Library/Include/sys/utsname.h
+
+diff --git a/.gitmodules b/.gitmodules
+index 508f0c1828..6deabd1f16 100644
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -1,6 +1,3 @@
+-[submodule "CryptoPkg/Library/OpensslLib/openssl"]
+-	path = CryptoPkg/Library/OpensslLib/openssl
+-	url = https://github.com/openssl/openssl
+ [submodule "SoftFloat"]
+ 	path = ArmPkg/Library/ArmSoftFloatLib/berkeley-softfloat-3
+ 	url = https://github.com/ucb-bar/berkeley-softfloat-3.git
+diff --git a/CryptoPkg/Library/Include/internal/dso_conf.h b/CryptoPkg/Library/Include/internal/dso_conf.h
+index e69de29bb2..43c891588b 100644
+--- a/CryptoPkg/Library/Include/internal/dso_conf.h
++++ b/CryptoPkg/Library/Include/internal/dso_conf.h
+@@ -0,0 +1,16 @@
++/* WARNING: do not edit! */
++/* Generated from crypto/include/internal/dso_conf.h.in */
++/*
++ * Copyright 2016-2019 The OpenSSL Project Authors. All Rights Reserved.
++ *
++ * Licensed under the OpenSSL license (the "License").  You may not use
++ * this file except in compliance with the License.  You can obtain a copy
++ * in the file LICENSE in the source distribution or at
++ * https://www.openssl.org/source/license.html
++ */
++
++#ifndef HEADER_DSO_CONF_H
++# define HEADER_DSO_CONF_H
++# define DSO_NONE
++# define DSO_EXTENSION ".so"
++#endif
+diff --git a/CryptoPkg/Library/Include/sys/shm.h b/CryptoPkg/Library/Include/sys/shm.h
+new file mode 100644
+index 0000000000..dc0b8e81c8
+--- /dev/null
++++ b/CryptoPkg/Library/Include/sys/shm.h
+@@ -0,0 +1,9 @@
++/** @file
++  Include file to support building the third-party cryptographic library.
++
++Copyright (c) 2019, Intel Corporation. All rights reserved.<BR>
++SPDX-License-Identifier: BSD-2-Clause-Patent
++
++**/
++
++#include <CrtLibSupport.h>
+diff --git a/CryptoPkg/Library/Include/sys/utsname.h b/CryptoPkg/Library/Include/sys/utsname.h
+new file mode 100644
+index 0000000000..dc0b8e81c8
+--- /dev/null
++++ b/CryptoPkg/Library/Include/sys/utsname.h
+@@ -0,0 +1,9 @@
++/** @file
++  Include file to support building the third-party cryptographic library.
++
++Copyright (c) 2019, Intel Corporation. All rights reserved.<BR>
++SPDX-License-Identifier: BSD-2-Clause-Patent
++
++**/
++
++#include <CrtLibSupport.h>
+diff --git a/CryptoPkg/Library/OpensslLib/process_files.pl b/CryptoPkg/Library/OpensslLib/process_files.pl
+index 4fe54cd808..bbcfa0d0e7 100755
+--- a/CryptoPkg/Library/OpensslLib/process_files.pl
++++ b/CryptoPkg/Library/OpensslLib/process_files.pl
+@@ -2,7 +2,7 @@
+ #
+ # This script runs the OpenSSL Configure script, then processes the
+ # resulting file list into our local OpensslLib[Crypto].inf and also
+-# takes a copy of opensslconf.h.
++# takes copies of opensslconf.h and dso_conf.h.
+ #
+ # This only needs to be done once by a developer when updating to a
+ # new version of OpenSSL (or changing options, etc.). Normal users
+@@ -106,6 +106,14 @@ BEGIN {
+                 ) == 0 ||
+                     die "Failed to generate opensslconf.h!\n";
+ 
++            # Generate dso_conf.h per config data
++            system(
++                "perl -I. -Mconfigdata util/dofile.pl " .
++                "crypto/include/internal/dso_conf.h.in " .
++                "> include/internal/dso_conf.h"
++                ) == 0 ||
++                    die "Failed to generate dso_conf.h!\n";
++
+             chdir($basedir) ||
+                 die "Cannot change to base directory \"" . $basedir . "\"";
+ 
+@@ -249,12 +257,17 @@ rename( $new_inf_file, $inf_file ) ||
+ print "Done!";
+ 
+ #
+-# Copy opensslconf.h generated from OpenSSL Configuration
++# Copy opensslconf.h and dso_conf.h generated from OpenSSL Configuration
+ #
+ print "\n--> Duplicating opensslconf.h into Include/openssl ... ";
+ copy($OPENSSL_PATH . "/include/openssl/opensslconf.h",
+      $OPENSSL_PATH . "/../../Include/openssl/") ||
+    die "Cannot copy opensslconf.h!";
++print "Done!";
++print "\n--> Duplicating dso_conf.h into Include/internal ... ";
++copy($OPENSSL_PATH . "/include/internal/dso_conf.h",
++     $OPENSSL_PATH . "/../../Include/internal/") ||
++   die "Cannot copy dso_conf.h!";
+ print "Done!\n";
+ 
+ print "\nProcessing Files Done!\n";
+-- 
+2.19.1
+
