@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 5
+Release: 6
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -18,7 +18,7 @@ Patch4:  0004-CryptoPkg-OpensslLib.inf-list-OpenSSL-local-header-m.patch
 # This patch is an openssl upstream patch to fix build error
 Patch5:  0005-crypto-threads_none.c-fix-syntax-error-in-openssl_ge.patch
 
-BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm
+BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
 
 %description
 EDK II is a modern, feature-rich, cross-platform firmware development environment for the UEFI and PI specifications. 
@@ -210,6 +210,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Sat Feb 22 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-6
+- add build requires of python2
+
 * Mon Dec 30 2019 Heyi Guo <buildteam@openeuler.org> - 201908-5
 - Upgrade openssl to 1.1.1d
 
