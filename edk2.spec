@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 6
+Release: 7
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -135,7 +135,7 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 
 %ifarch x86_64
     mkdir -p %{buildroot}/usr/share/%{name}/ovmf
-    cp Build/OvmfX64/*/FV/OVMF_*.fd %{buildroot}/usr/share/%{name}/ovmf
+    cp Build/OvmfX64/*/FV/OVMF*.fd %{buildroot}/usr/share/%{name}/ovmf
 %endif
 
 %ifarch %{ix86}
@@ -210,6 +210,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Sun Mar 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-7
+- fix missing OVMF.fd in package
+
 * Sat Feb 22 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-6
 - add build requires of python2
 
