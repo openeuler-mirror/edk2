@@ -77,12 +77,13 @@ BUILD_OPTION="-t GCC49 -n $NCPUS -b RELEASE"
 make -C BaseTools %{?_smp_mflags} EXTRA_OPTFLAGS="%{optflags}" EXTRA_LDFLAGS="%{__global_ldflags}"
 . ./edksetup.sh
 
+COMMON_FLAGS="-D NETWORK_IP6_ENABLE"
 %ifarch aarch64
-    BUILD_OPTION="$BUILD_OPTION -a AARCH64 -p ArmVirtPkg/ArmVirtQemu.dsc --cmd-len=65536 -D NETWORK_IP6_ENABLE"
+    BUILD_OPTION="$BUILD_OPTION -a AARCH64 -p ArmVirtPkg/ArmVirtQemu.dsc --cmd-len=65536 $COMMON_FLAGS"
 %endif
 
 %ifarch x86_64
-    BUILD_OPTION="$BUILD_OPTION -a X64 -p OvmfPkg/OvmfPkgX64.dsc"
+    BUILD_OPTION="$BUILD_OPTION -a X64 -p OvmfPkg/OvmfPkgX64.dsc $COMMON_FLAGS"
 %endif
 
 %ifarch %{ix86}
@@ -213,6 +214,7 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 * Tue Mar 17 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-8
 - enable multiple threads compiling
 - Pass EXTRA_OPTFLAGS and EXTRA_OPTFLAGS options to make command
+- enable IPv6 for X86_64
 
 * Sun Mar 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-7
 - fix missing OVMF.fd in package
