@@ -74,7 +74,7 @@ tar -xf %{SOURCE1} -C CryptoPkg/Library/OpensslLib/openssl --strip-components=1
 NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
 BUILD_OPTION="-t GCC49 -n $NCPUS -b RELEASE"
 
-make -C BaseTools %{?_smp_mflags}
+make -C BaseTools %{?_smp_mflags} EXTRA_OPTFLAGS="%{optflags}" EXTRA_LDFLAGS="%{__global_ldflags}"
 . ./edksetup.sh
 
 %ifarch aarch64
@@ -212,6 +212,7 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %changelog
 * Tue Mar 17 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-8
 - enable multiple threads compiling
+- Pass EXTRA_OPTFLAGS and EXTRA_OPTFLAGS options to make command
 
 * Sun Mar 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-7
 - fix missing OVMF.fd in package
