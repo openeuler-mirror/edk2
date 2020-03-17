@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 7
+Release: 8
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -74,15 +74,16 @@ tar -xf %{SOURCE1} -C CryptoPkg/Library/OpensslLib/openssl --strip-components=1
 NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
 BUILD_OPTION="-t GCC49 -n $NCPUS -b RELEASE"
 
-make -C BaseTools
+make -C BaseTools %{?_smp_mflags} EXTRA_OPTFLAGS="%{optflags}" EXTRA_LDFLAGS="%{__global_ldflags}"
 . ./edksetup.sh
 
+COMMON_FLAGS="-D NETWORK_IP6_ENABLE"
 %ifarch aarch64
-    BUILD_OPTION="$BUILD_OPTION -a AARCH64 -p ArmVirtPkg/ArmVirtQemu.dsc --cmd-len=65536 -D NETWORK_IP6_ENABLE"
+    BUILD_OPTION="$BUILD_OPTION -a AARCH64 -p ArmVirtPkg/ArmVirtQemu.dsc --cmd-len=65536 $COMMON_FLAGS"
 %endif
 
 %ifarch x86_64
-    BUILD_OPTION="$BUILD_OPTION -a X64 -p OvmfPkg/OvmfPkgX64.dsc"
+    BUILD_OPTION="$BUILD_OPTION -a X64 -p OvmfPkg/OvmfPkgX64.dsc $COMMON_FLAGS"
 %endif
 
 %ifarch %{ix86}
@@ -210,6 +211,11 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Tue Mar 17 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-8
+- enable multiple threads compiling
+- Pass EXTRA_OPTFLAGS and EXTRA_OPTFLAGS options to make command
+- enable IPv6 for X86_64
+
 * Sun Mar 15 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-7
 - fix missing OVMF.fd in package
 
