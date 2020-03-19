@@ -5,12 +5,16 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 8
+Release: 9
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
 Source0: edk2-%{release_tag}.tar.gz
 Source1: openssl-%{openssl_version}.tar.gz
+# openssl patches
+Source2: CVE-2019-1551.patch
+Source3: use-the-correct-maximum-indent.patch
+
 Patch1:  0001-CryptoPkg-OpensslLib-Update-process_files.pl-to-gene.patch
 Patch2:  0002-CryptoPkg-Upgrade-OpenSSL-to-1.1.1d.patch
 Patch3:  0003-CryptoPkg-OpensslLib-improve-INF-file-consistency.patch
@@ -68,6 +72,8 @@ EFI Development Kit II Open Virtual Machine Firmware (ia32)
 %prep
 %setup -n edk2-%{release_tag}
 tar -xf %{SOURCE1} -C CryptoPkg/Library/OpensslLib/openssl --strip-components=1
+patch -p1 < %{SOURCE2} -d CryptoPkg/Library/OpensslLib/openssl
+patch -p1 < %{SOURCE3} -d CryptoPkg/Library/OpensslLib/openssl
 %autopatch -p1
 
 %build
@@ -211,6 +217,10 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Thu Mar 19 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-9
+- fix an overflow bug in rsaz_512_sqr
+- use the correct maximum indent
+
 * Tue Mar 17 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-8
 - enable multiple threads compiling
 - Pass EXTRA_OPTFLAGS and EXTRA_OPTFLAGS options to make command
