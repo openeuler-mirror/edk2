@@ -1,0 +1,32 @@
+From a6105ef40d65b35818f2b8ae8ca9e57ca6956d1d Mon Sep 17 00:00:00 2001
+From: Kurt Roeckx <kurt@roeckx.be>
+Date: Fri, 20 Sep 2019 20:26:42 +0200
+Subject: [PATCH] Use the correct maximum indent
+
+Found by OSS-Fuzz
+
+Reviewed-by: Richard Levitte <levitte@openssl.org>
+Reviewed-by: Paul Dale <paul.dale@oracle.com>
+
+GH: #9959
+---
+ crypto/bio/b_dump.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/crypto/bio/b_dump.c b/crypto/bio/b_dump.c
+index e4ad3615f4..018c4acb27 100644
+--- a/crypto/bio/b_dump.c
++++ b/crypto/bio/b_dump.c
+@@ -37,8 +37,8 @@ int BIO_dump_indent_cb(int (*cb) (const void *data, size_t len, void *u),
+
+     if (indent < 0)
+         indent = 0;
+-    else if (indent > 128)
+-        indent = 128;
++    else if (indent > 64)
++        indent = 64;
+
+     dump_width = DUMP_WIDTH_LESS_INDENT(indent);
+     rows = len / dump_width;
+--
+1.8.3.1
