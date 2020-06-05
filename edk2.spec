@@ -1,26 +1,19 @@
-%global stable_date 201908
+%global stable_date 202002
 %global release_tag edk2-stable%{stable_date}
-%global openssl_version 1.1.1d
+%global openssl_version 1.1.1f
 %global _python_bytecompile_extra 0
 
 Name: edk2
 Version: %{stable_date}
-Release: 9
+Release: 1
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
-Source0: edk2-%{release_tag}.tar.gz
+Source0: %{release_tag}.tar.gz
 Source1: openssl-%{openssl_version}.tar.gz
-# openssl patches
-Source2: CVE-2019-1551.patch
-Source3: use-the-correct-maximum-indent.patch
 
-Patch1:  0001-CryptoPkg-OpensslLib-Update-process_files.pl-to-gene.patch
-Patch2:  0002-CryptoPkg-Upgrade-OpenSSL-to-1.1.1d.patch
-Patch3:  0003-CryptoPkg-OpensslLib-improve-INF-file-consistency.patch
-Patch4:  0004-CryptoPkg-OpensslLib.inf-list-OpenSSL-local-header-m.patch
-# This patch is an openssl upstream patch to fix build error
-Patch5:  0005-crypto-threads_none.c-fix-syntax-error-in-openssl_ge.patch
+Patch0001: 0001-CryptoPkg-OpensslLib-Modify-process_files.pl-for-Ope.patch
+Patch0002: 0002-CryptoPkg-Upgrade-OpenSSL-to-1.1.1f.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
 
@@ -72,8 +65,6 @@ EFI Development Kit II Open Virtual Machine Firmware (ia32)
 %prep
 %setup -n edk2-%{release_tag}
 tar -xf %{SOURCE1} -C CryptoPkg/Library/OpensslLib/openssl --strip-components=1
-patch -p1 < %{SOURCE2} -d CryptoPkg/Library/OpensslLib/openssl
-patch -p1 < %{SOURCE3} -d CryptoPkg/Library/OpensslLib/openssl
 %autopatch -p1
 
 %build
@@ -217,6 +208,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Thu May 7 2020 openEuler Buildteam <buildteam@openeuler.org> - 202002-1
+- Update edk2 to stable202002 and OpenSSL to 1.1.1f
+
 * Thu Mar 19 2020 openEuler Buildteam <buildteam@openeuler.org> - 201908-9
 - fix an overflow bug in rsaz_512_sqr
 - use the correct maximum indent
