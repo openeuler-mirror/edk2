@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 2
+Release: 3
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -14,6 +14,17 @@ Source1: openssl-%{openssl_version}.tar.gz
 
 Patch0001: 0001-CryptoPkg-OpensslLib-Modify-process_files.pl-for-Ope.patch
 Patch0002: 0002-CryptoPkg-Upgrade-OpenSSL-to-1.1.1f.patch
+Patch0003: 0003-OvmfPkg-Tcg2ConfigPei-introduce-a-signalling-PPI-to-.patch
+Patch0004: 0004-ArmVirtPkg-PlatformPeiLib-make-PcdLib-dependency-exp.patch
+Patch0005: 0005-ArmVirtPkg-PlatformPeiLib-discover-the-TPM-base-addr.patch
+Patch0006: 0006-ArmVirtPkg-implement-ArmVirtPsciResetSystemPeiLib.patch
+Patch0007: 0007-ArmVirtPkg-ArmVirtQemu-add-ResetSystem-PEIM-for-upco.patch
+Patch0008: 0008-ArmVirtPkg-ArmVirtQemu-enable-TPM2-support-in-the-PE.patch
+Patch0009: 0009-ArmVirtPkg-avoid-DxeTpmMeasurementLib-in-shared-.DSC.patch
+Patch0010: 0010-ArmVirtPkg-unshare-TpmMeasurementLib-resolution-betw.patch
+Patch0011: 0011-ArmVirtPkg-ArmVirtQemu-enable-the-DXE-phase-TPM2-sup.patch
+Patch0012: 0012-ArmVirtPkg-ArmVirtQemu-enable-the-TPM2-configuration.patch
+Patch0013: 0013-ArmVirtPkg-ArmVirtQemu-enable-TPM2-based-measured-bo.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
 
@@ -69,7 +80,7 @@ tar -xf %{SOURCE1} -C CryptoPkg/Library/OpensslLib/openssl --strip-components=1
 
 %build
 NCPUS=`/usr/bin/getconf _NPROCESSORS_ONLN`
-BUILD_OPTION="-t GCC49 -n $NCPUS -b RELEASE"
+BUILD_OPTION="-t GCC5 -n $NCPUS -b RELEASE"
 
 make -C BaseTools %{?_smp_mflags} EXTRA_OPTFLAGS="%{optflags}" EXTRA_LDFLAGS="%{__global_ldflags}"
 . ./edksetup.sh
@@ -87,6 +98,8 @@ COMMON_FLAGS="-D NETWORK_IP6_ENABLE"
     BUILD_OPTION="$BUILD_OPTION -a IA32 -p OvmfPkg/OvmfPkgIa32.dsc"
 %endif
 BUILD_OPTION="$BUILD_OPTION -D SECURE_BOOT_ENABLE=TRUE"
+BUILD_OPTION="$BUILD_OPTION -D TPM2_ENABLE=TRUE"
+BUILD_OPTION="$BUILD_OPTION -D TPM2_CONFIG_ENABLE=TRUE"
 build $BUILD_OPTION
 
 %install
@@ -209,6 +222,10 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Thu Jul 31 2020 jiangfangjie <jiangfangjie@huawei.com> - 202002-3
+- ArmVirtPkg/ArmVirtQemu: enable TPM2 based measured boot
+- ArmVirtPkg/ArmVirtQemu: enable the TPM2 configuration module
+
 * Mon Jul 27 2020 zhangxinhao <zhangxinhao1@huawei.com> - 202002-2
 - add build option "-D SECURE_BOOT_ENABLE=TRUE" to enable secure boot 
 
