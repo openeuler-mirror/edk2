@@ -1,0 +1,318 @@
+From f1bb8ca123be4d0194a9f65b93a9c65c85861b50 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Wed, 26 Feb 2020 20:05:08 +0100
+Subject: [PATCH 05/13] ArmVirtPkg/PlatformPeiLib: discover the TPM base
+ address from the DT
+
+Introduce a boolean PCD that tells us whether TPM support is enabled
+in the build, and if it is, record the TPM base address in the existing
+routine that traverses the device tree in the platform PEIM.
+
+If a TPM is found, install the gOvmfTpmDiscoveredPpiGuid signalling PPI
+that will unlock the dispatch of OvmfPkg's Tcg2ConfigPei. If TPM2
+support is enabled in the build but no TPM2 device is found, install the
+gPeiTpmInitializationDonePpiGuid PPI, which is normally installed by
+Tcg2ConfigPei if no TPM2 is found, but in our case Tcg2ConfigPei will
+never run so let's do it here instead.
+
+Ref: https://bugzilla.tianocore.org/show_bug.cgi?id=2560
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Acked-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: jiangfangjie <jiangfangjie@huawei.com>
+---
+ ArmVirtPkg/ArmVirtPkg.dec                     |   6 ++
+ ArmVirtPkg/ArmVirtQemu.dsc                    |   5 +
+ ArmVirtPkg/ArmVirtQemuKernel.dsc              |   6 ++
+ ArmVirtPkg/ArmVirtXen.dsc                     |   6 ++
+ .../Library/PlatformPeiLib/PlatformPeiLib.c   | 101 ++++++++++++++++--
+ .../Library/PlatformPeiLib/PlatformPeiLib.inf |  19 +++-
+ 6 files changed, 129 insertions(+), 14 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirtPkg.dec b/ArmVirtPkg/ArmVirtPkg.dec
+index a019cc2..0619efc 100644
+--- a/ArmVirtPkg/ArmVirtPkg.dec
++++ b/ArmVirtPkg/ArmVirtPkg.dec
+@@ -36,6 +36,12 @@
+ [Protocols]
+   gFdtClientProtocolGuid = { 0xE11FACA0, 0x4710, 0x4C8E, { 0xA7, 0xA2, 0x01, 0xBA, 0xA2, 0x59, 0x1B, 0x4C } }
+ 
++[PcdsFeatureFlag]
++  #
++  # Feature Flag PCD that defines whether TPM2 support is enabled
++  #
++  gArmVirtTokenSpaceGuid.PcdTpm2SupportEnabled|FALSE|BOOLEAN|0x00000004
++
+ [PcdsFixedAtBuild, PcdsPatchableInModule]
+   #
+   # This is the physical address where the device tree is expected to be stored
+diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
+index 7ae6702..984df5c 100644
+--- a/ArmVirtPkg/ArmVirtQemu.dsc
++++ b/ArmVirtPkg/ArmVirtQemu.dsc
+@@ -237,6 +237,11 @@
+   gEfiMdeModulePkgTokenSpaceGuid.PcdSmbiosDocRev|0x0
+   gUefiOvmfPkgTokenSpaceGuid.PcdQemuSmbiosValidated|FALSE
+ 
++  #
++  # TPM2 support
++  #
++  gEfiSecurityPkgTokenSpaceGuid.PcdTpmBaseAddress|0x0
++
+ [PcdsDynamicHii]
+   gArmVirtTokenSpaceGuid.PcdForceNoAcpi|L"ForceNoAcpi"|gArmVirtVariableGuid|0x0|FALSE|NV,BS
+ 
+diff --git a/ArmVirtPkg/ArmVirtQemuKernel.dsc b/ArmVirtPkg/ArmVirtQemuKernel.dsc
+index 3b0f049..8243876 100644
+--- a/ArmVirtPkg/ArmVirtQemuKernel.dsc
++++ b/ArmVirtPkg/ArmVirtQemuKernel.dsc
+@@ -172,6 +172,12 @@
+   gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|3
+ 
+ [PcdsPatchableInModule.common]
++  # we need to provide a resolution for this PCD that supports PcdSet64()
++  # being called from ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.c,
++  # even though that call will be compiled out on this platform as it does
++  # not (and cannot) support the TPM2 driver stack
++  gEfiSecurityPkgTokenSpaceGuid.PcdTpmBaseAddress|0x0
++
+   #
+   # This will be overridden in the code
+   #
+diff --git a/ArmVirtPkg/ArmVirtXen.dsc b/ArmVirtPkg/ArmVirtXen.dsc
+index 1b42a9a..8a6ace2 100644
+--- a/ArmVirtPkg/ArmVirtXen.dsc
++++ b/ArmVirtPkg/ArmVirtXen.dsc
+@@ -95,6 +95,12 @@
+   gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvModeEnable|TRUE
+ 
+ [PcdsPatchableInModule.common]
++  # we need to provide a resolution for this PCD that supports PcdSet64()
++  # being called from ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.c,
++  # even though that call will be compiled out on this platform as it does
++  # not (and cannot) support the TPM2 driver stack
++  gEfiSecurityPkgTokenSpaceGuid.PcdTpmBaseAddress|0x0
++
+   #
+   # This will be overridden in the code
+   #
+diff --git a/ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.c b/ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.c
+index 0a14695..eabd800 100644
+--- a/ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.c
++++ b/ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.c
+@@ -1,7 +1,7 @@
+ /** @file
+ *
+ *  Copyright (c) 2011-2014, ARM Limited. All rights reserved.
+-*  Copyright (c) 2014, Linaro Limited. All rights reserved.
++*  Copyright (c) 2014-2020, Linaro Limited. All rights reserved.
+ *
+ *  SPDX-License-Identifier: BSD-2-Clause-Patent
+ *
+@@ -13,11 +13,24 @@
+ #include <Library/DebugLib.h>
+ #include <Library/HobLib.h>
+ #include <Library/PcdLib.h>
++#include <Library/PeiServicesLib.h>
+ #include <libfdt.h>
+ 
+ #include <Guid/EarlyPL011BaseAddress.h>
+ #include <Guid/FdtHob.h>
+ 
++STATIC CONST EFI_PEI_PPI_DESCRIPTOR mTpm2DiscoveredPpi = {
++  EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST,
++  &gOvmfTpmDiscoveredPpiGuid,
++  NULL
++};
++
++STATIC CONST EFI_PEI_PPI_DESCRIPTOR mTpm2InitializationDonePpi = {
++  EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST,
++  &gPeiTpmInitializationDonePpiGuid,
++  NULL
++};
++
+ EFI_STATUS
+ EFIAPI
+ PlatformPeim (
+@@ -31,14 +44,18 @@ PlatformPeim (
+   UINT64             *FdtHobData;
+   UINT64             *UartHobData;
+   INT32              Node, Prev;
++  INT32              Parent, Depth;
+   CONST CHAR8        *Compatible;
+   CONST CHAR8        *CompItem;
+   CONST CHAR8        *NodeStatus;
+   INT32              Len;
++  INT32              RangesLen;
+   INT32              StatusLen;
+   CONST UINT64       *RegProp;
++  CONST UINT32       *RangesProp;
+   UINT64             UartBase;
+-
++  UINT64             TpmBase;
++  EFI_STATUS         Status;
+ 
+   Base = (VOID*)(UINTN)PcdGet64 (PcdDeviceTreeInitialBaseAddress);
+   ASSERT (Base != NULL);
+@@ -58,18 +75,18 @@ PlatformPeim (
+   ASSERT (UartHobData != NULL);
+   *UartHobData = 0;
+ 
+-  //
+-  // Look for a UART node
+-  //
+-  for (Prev = 0;; Prev = Node) {
+-    Node = fdt_next_node (Base, Prev, NULL);
++  TpmBase = 0;
++
++  for (Prev = Depth = 0;; Prev = Node) {
++    Node = fdt_next_node (Base, Prev, &Depth);
+     if (Node < 0) {
+       break;
+     }
+ 
+-    //
+-    // Check for UART node
+-    //
++    if (Depth == 1) {
++      Parent = Node;
++    }
++
+     Compatible = fdt_getprop (Base, Node, "compatible", &Len);
+ 
+     //
+@@ -93,10 +110,74 @@ PlatformPeim (
+ 
+         *UartHobData = UartBase;
+         break;
++      } else if (FeaturePcdGet (PcdTpm2SupportEnabled) &&
++                 AsciiStrCmp (CompItem, "tcg,tpm-tis-mmio") == 0) {
++
++        RegProp = fdt_getprop (Base, Node, "reg", &Len);
++        ASSERT (Len == 8 || Len == 16);
++        if (Len == 8) {
++          TpmBase = fdt32_to_cpu (RegProp[0]);
++        } else if (Len == 16) {
++          TpmBase = fdt64_to_cpu (ReadUnaligned64 ((UINT64 *)RegProp));
++        }
++
++        if (Depth > 1) {
++          //
++          // QEMU/mach-virt may put the TPM on the platform bus, in which case
++          // we have to take its 'ranges' property into account to translate the
++          // MMIO address. This consists of a <child base, parent base, size>
++          // tuple, where the child base and the size use the same number of
++          // cells as the 'reg' property above, and the parent base uses 2 cells
++          //
++          RangesProp = fdt_getprop (Base, Parent, "ranges", &RangesLen);
++          ASSERT (RangesProp != NULL);
++
++          //
++          // a plain 'ranges' attribute without a value implies a 1:1 mapping
++          //
++          if (RangesLen != 0) {
++            //
++            // assume a single translated range with 2 cells for the parent base
++            //
++            if (RangesLen != Len + 2 * sizeof (UINT32)) {
++              DEBUG ((DEBUG_WARN,
++                "%a: 'ranges' property has unexpected size %d\n",
++                __FUNCTION__, RangesLen));
++              break;
++            }
++
++            if (Len == 8) {
++              TpmBase -= fdt32_to_cpu (RangesProp[0]);
++            } else {
++              TpmBase -= fdt64_to_cpu (ReadUnaligned64 ((UINT64 *)RangesProp));
++            }
++
++            //
++            // advance RangesProp to the parent bus address
++            //
++            RangesProp = (UINT32 *)((UINT8 *)RangesProp + Len / 2);
++            TpmBase += fdt64_to_cpu (ReadUnaligned64 ((UINT64 *)RangesProp));
++          }
++        }
++        break;
+       }
+     }
+   }
+ 
++  if (FeaturePcdGet (PcdTpm2SupportEnabled)) {
++    if (TpmBase != 0) {
++      DEBUG ((DEBUG_INFO, "%a: TPM @ 0x%lx\n", __FUNCTION__, TpmBase));
++
++      Status = (EFI_STATUS)PcdSet64S (PcdTpmBaseAddress, TpmBase);
++      ASSERT_EFI_ERROR (Status);
++
++      Status = PeiServicesInstallPpi (&mTpm2DiscoveredPpi);
++    } else {
++      Status = PeiServicesInstallPpi (&mTpm2InitializationDonePpi);
++    }
++    ASSERT_EFI_ERROR (Status);
++  }
++
+   BuildFvHob (PcdGet64 (PcdFvBaseAddress), PcdGet32 (PcdFvSize));
+ 
+   return EFI_SUCCESS;
+diff --git a/ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.inf b/ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.inf
+index 1ef04d1..5dae4df 100644
+--- a/ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.inf
++++ b/ArmVirtPkg/Library/PlatformPeiLib/PlatformPeiLib.inf
+@@ -1,7 +1,7 @@
+ #/** @file
+ #
+ #  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
+-#  Copyright (c) 2014, Linaro Limited. All rights reserved.
++#  Copyright (c) 2014-2020, Linaro Limited. All rights reserved.
+ #
+ #  SPDX-License-Identifier: BSD-2-Clause-Patent
+ #
+@@ -11,7 +11,7 @@
+   INF_VERSION                    = 0x00010005
+   BASE_NAME                      = PlatformPeiLib
+   FILE_GUID                      = 59C11815-F8DA-4F49-B4FB-EC1E41ED1F06
+-  MODULE_TYPE                    = SEC
++  MODULE_TYPE                    = BASE
+   VERSION_STRING                 = 1.0
+   LIBRARY_CLASS                  = PlatformPeiLib
+ 
+@@ -21,15 +21,21 @@
+ [Packages]
+   ArmPkg/ArmPkg.dec
+   ArmVirtPkg/ArmVirtPkg.dec
+-  MdePkg/MdePkg.dec
+-  MdeModulePkg/MdeModulePkg.dec
+   EmbeddedPkg/EmbeddedPkg.dec
++  MdeModulePkg/MdeModulePkg.dec
++  MdePkg/MdePkg.dec
++  OvmfPkg/OvmfPkg.dec
++  SecurityPkg/SecurityPkg.dec
++
++[FeaturePcd]
++  gArmVirtTokenSpaceGuid.PcdTpm2SupportEnabled
+ 
+ [LibraryClasses]
+   DebugLib
+   HobLib
+   FdtLib
+   PcdLib
++  PeiServicesLib
+ 
+ [FixedPcd]
+   gArmTokenSpaceGuid.PcdFvSize
+@@ -38,6 +44,11 @@
+ [Pcd]
+   gArmTokenSpaceGuid.PcdFvBaseAddress
+   gArmVirtTokenSpaceGuid.PcdDeviceTreeInitialBaseAddress
++  gEfiSecurityPkgTokenSpaceGuid.PcdTpmBaseAddress         ## SOMETIMES_PRODUCES
++
++[Ppis]
++  gOvmfTpmDiscoveredPpiGuid                               ## SOMETIMES_PRODUCES
++  gPeiTpmInitializationDonePpiGuid                        ## SOMETIMES_PRODUCES
+ 
+ [Guids]
+   gEarlyPL011BaseAddressGuid
+-- 
+2.18.2
+

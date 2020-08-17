@@ -1,0 +1,115 @@
+From d77e86c43972cd56b37d8f4b34c253f82aa65f54 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Wed, 26 Feb 2020 20:05:12 +0100
+Subject: [PATCH 11/13] ArmVirtPkg/ArmVirtQemu: enable the DXE phase TPM2
+ support module
+
+Enable the TPM2 support module in the DXE phase, and the associated
+libraries and PCDs that it requires. This will be wired into the
+measured boot support code in a subsequent patch.
+
+Note that Tcg2Dxe.inf is added to ArmVirtQemuFvMain.fdf.inc, which
+is shared with other platforms in ArmVirtPkg, but as those will not
+set the TPM2_ENABLE define, this change does not affect them.
+
+This patch ports (parts of) the following OvmfPkg commits to
+ArmVirtQemu:
+
+- 0c0a50d6b3ff ("OvmfPkg: include Tcg2Dxe module", 2018-03-09)
+
+- b9777bb42e4f ("OvmfPkg: add Tcg2PhysicalPresenceLibQemu", 2018-05-22)
+               -- only to match OVMF's current lib class resolutions
+
+- 1ec05b81e59f ("OvmfPkg: use DxeTpmMeasurementLib if and only if
+                TPM2_ENABLE", 2019-07-04)
+
+- b9130c866dc0 ("OvmfPkg: link Sha384 and Sha512 support into Tcg2Pei
+                and Tcg2Dxe", 2018-08-16)
+
+- 5d3ef15da7c3 ("OvmfPkg: link SM3 support into Tcg2Pei and Tcg2Dxe",
+                2019-07-19)
+
+Ref: https://bugzilla.tianocore.org/show_bug.cgi?id=2560
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: jiangfangjie <jiangfangjie@huawei.com>
+---
+ ArmVirtPkg/ArmVirtQemu.dsc           | 26 +++++++++++++++++++++++++-
+ ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc |  7 +++++++
+ 2 files changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
+index 83c4dea..291210a 100644
+--- a/ArmVirtPkg/ArmVirtQemu.dsc
++++ b/ArmVirtPkg/ArmVirtQemu.dsc
+@@ -74,10 +74,13 @@
+   PciPcdProducerLib|ArmVirtPkg/Library/FdtPciPcdProducerLib/FdtPciPcdProducerLib.inf
+   PciSegmentLib|MdePkg/Library/BasePciSegmentLibPci/BasePciSegmentLibPci.inf
+   PciHostBridgeLib|ArmVirtPkg/Library/FdtPciHostBridgeLib/FdtPciHostBridgeLib.inf
+-  TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
+ 
+ !if $(TPM2_ENABLE) == TRUE
+   Tpm2CommandLib|SecurityPkg/Library/Tpm2CommandLib/Tpm2CommandLib.inf
++  Tcg2PhysicalPresenceLib|OvmfPkg/Library/Tcg2PhysicalPresenceLibQemu/DxeTcg2PhysicalPresenceLib.inf
++  TpmMeasurementLib|SecurityPkg/Library/DxeTpmMeasurementLib/DxeTpmMeasurementLib.inf
++!else
++  TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
+ !endif
+ 
+ [LibraryClasses.common.PEIM]
+@@ -92,6 +95,10 @@
+ [LibraryClasses.common.DXE_DRIVER]
+   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
+ 
++!if $(TPM2_ENABLE) == TRUE
++  Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibTcg2/Tpm2DeviceLibTcg2.inf
++!endif
++
+ [LibraryClasses.common.UEFI_DRIVER]
+   UefiScsiLib|MdePkg/Library/UefiScsiLib/UefiScsiLib.inf
+ 
+@@ -470,6 +477,23 @@
+   MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
+   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
++  #
++  # TPM2 support
++  #
++!if $(TPM2_ENABLE) == TRUE
++  SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.inf {
++    <LibraryClasses>
++      HashLib|SecurityPkg/Library/HashLibBaseCryptoRouter/HashLibBaseCryptoRouterDxe.inf
++      Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterDxe.inf
++      NULL|SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2InstanceLibDTpm.inf
++      NULL|SecurityPkg/Library/HashInstanceLibSha1/HashInstanceLibSha1.inf
++      NULL|SecurityPkg/Library/HashInstanceLibSha256/HashInstanceLibSha256.inf
++      NULL|SecurityPkg/Library/HashInstanceLibSha384/HashInstanceLibSha384.inf
++      NULL|SecurityPkg/Library/HashInstanceLibSha512/HashInstanceLibSha512.inf
++      NULL|SecurityPkg/Library/HashInstanceLibSm3/HashInstanceLibSm3.inf
++  }
++!endif
++
+   #
+   # ACPI Support
+   #
+diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+index 31f615a..047e99c 100644
+--- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
++++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+@@ -173,6 +173,13 @@ READ_LOCK_STATUS   = TRUE
+   INF MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
+   INF MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
++  #
++  # TPM2 support
++  #
++!if $(TPM2_ENABLE) == TRUE
++  INF SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.inf
++!endif
++
+   #
+   # TianoCore logo (splash screen)
+   #
+-- 
+2.18.2
+

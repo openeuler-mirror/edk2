@@ -1,0 +1,48 @@
+From 785f0c94c6fa7bfbf307d2e5faa90964dca155a9 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Thu, 27 Feb 2020 15:12:32 +0100
+Subject: [PATCH 09/13] ArmVirtPkg; avoid DxeTpmMeasurementLib in shared .DSC
+
+DxeTpmMeasurementLib should only be used on platforms that implement
+measured boot, which we will do in a future patch, but only for
+ArmVirtQemu, as the remaining ones are fundamentally incompatible,
+given that they do not implement a PEI phase.
+
+So use TpmMeasurementLibNull as the default resolution for all
+ArmVirtPkg platforms, regardless of how they are built.
+
+This mirrors commit 1ec05b81e59f ("OvmfPkg: use DxeTpmMeasurementLib
+if and only if TPM2_ENABLE", 2019-07-04).
+
+Ref: https://bugzilla.tianocore.org/show_bug.cgi?id=2560
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: jiangfangjie <jiangfangjie@huawei.com>
+---
+ ArmVirtPkg/ArmVirt.dsc.inc | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
+index 10037c9..398aa7b 100644
+--- a/ArmVirtPkg/ArmVirt.dsc.inc
++++ b/ArmVirtPkg/ArmVirt.dsc.inc
+@@ -165,15 +165,14 @@
+   # Secure Boot dependencies
+   #
+ !if $(SECURE_BOOT_ENABLE) == TRUE
+-  TpmMeasurementLib|SecurityPkg/Library/DxeTpmMeasurementLib/DxeTpmMeasurementLib.inf
+   AuthVariableLib|SecurityPkg/Library/AuthVariableLib/AuthVariableLib.inf
+ 
+   # re-use the UserPhysicalPresent() dummy implementation from the ovmf tree
+   PlatformSecureLib|OvmfPkg/Library/PlatformSecureLib/PlatformSecureLib.inf
+ !else
+-  TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
+   AuthVariableLib|MdeModulePkg/Library/AuthVariableLibNull/AuthVariableLibNull.inf
+ !endif
++  TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
+   VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
+   UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
+ 
+-- 
+2.18.2
+
