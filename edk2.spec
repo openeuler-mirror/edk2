@@ -5,11 +5,11 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 3
+Release: 4
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
-Source0: %{release_tag}.tar.gz
+Source0: https://github.com/tianocore/edk2/archive/%{release_tag}.tar.gz
 Source1: openssl-%{openssl_version}.tar.gz
 
 Patch0001: 0001-CryptoPkg-OpensslLib-Modify-process_files.pl-for-Ope.patch
