@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 1
+Release: 2
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -86,6 +86,7 @@ COMMON_FLAGS="-D NETWORK_IP6_ENABLE"
 %ifarch %{ix86}
     BUILD_OPTION="$BUILD_OPTION -a IA32 -p OvmfPkg/OvmfPkgIa32.dsc"
 %endif
+BUILD_OPTION="$BUILD_OPTION -D SECURE_BOOT_ENABLE=TRUE"
 build $BUILD_OPTION
 
 %install
@@ -208,6 +209,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Wed Oct 14 2020 zhangxinhao <zhangxinhao1@huawei.com> - 202002-2
+- add build option "-D SECURE_BOOT_ENABLE=TRUE" to enable secure boot 
+
 * Thu May 7 2020 openEuler Buildteam <buildteam@openeuler.org> - 202002-1
 - Update edk2 to stable202002 and OpenSSL to 1.1.1f
 
