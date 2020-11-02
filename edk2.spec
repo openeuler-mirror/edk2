@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 4
+Release: 5
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -26,7 +26,7 @@ Patch0011: 0011-ArmVirtPkg-ArmVirtQemu-enable-the-DXE-phase-TPM2-sup.patch
 Patch0012: 0012-ArmVirtPkg-ArmVirtQemu-enable-the-TPM2-configuration.patch
 Patch0013: 0013-ArmVirtPkg-ArmVirtQemu-enable-TPM2-based-measured-bo.patch
 
-BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
+BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
 %description
 EDK II is a modern, feature-rich, cross-platform firmware development environment for the UEFI and PI specifications. 
@@ -222,12 +222,18 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
-* Thu Jul 31 2020 jiangfangjie <jiangfangjie@huawei.com> - 202002-3
+* Tue Oct 27 2020 AlexChen <alex.chen@huawei.com> - 202002-5
+- remove build requires of python2
+
+* Mon Sep 28 2020 FangYing <fangying1@huawei.com> - 202002-4
+- update the Source0 to http url
+
+* Fri Jul 31 2020 jiangfangjie <jiangfangjie@huawei.com> - 202002-3
 - ArmVirtPkg/ArmVirtQemu: enable TPM2 based measured boot
 - ArmVirtPkg/ArmVirtQemu: enable the TPM2 configuration module
 
 * Mon Jul 27 2020 zhangxinhao <zhangxinhao1@huawei.com> - 202002-2
-- add build option "-D SECURE_BOOT_ENABLE=TRUE" to enable secure boot 
+- add build option "-D SECURE_BOOT_ENABLE=TRUE" to enable secure boot
 
 * Thu May 7 2020 openEuler Buildteam <buildteam@openeuler.org> - 202002-1
 - Update edk2 to stable202002 and OpenSSL to 1.1.1f
