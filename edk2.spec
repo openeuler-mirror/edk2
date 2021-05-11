@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 2
+Release: 3
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -14,6 +14,9 @@ Source1: openssl-%{openssl_version}.tar.gz
 
 Patch0001: 0001-CryptoPkg-OpensslLib-Modify-process_files.pl-for-Ope.patch
 Patch0002: 0002-CryptoPkg-Upgrade-OpenSSL-to-1.1.1f.patch
+Patch0003: 0001-SecurityPkg-DxeImageVerificationLib-extract-SecDataD.patch
+Patch0004: 0002-SecurityPkg-DxeImageVerificationLib-assign-WinCertif.patch
+Patch0005: 0003-SecurityPkg-DxeImageVerificationLib-catch-alignment-.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
 
@@ -209,6 +212,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Mon May 10 2021 openEuler Buildteam <buildteam@openeuler.org> - 202002-3
+- Fix CVE-2019-14562
+
 * Wed Oct 14 2020 zhangxinhao <zhangxinhao1@huawei.com> - 202002-2
 - add build option "-D SECURE_BOOT_ENABLE=TRUE" to enable secure boot 
 
