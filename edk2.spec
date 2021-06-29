@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 5
+Release: 6
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -25,6 +25,8 @@ Patch0010: 0010-ArmVirtPkg-unshare-TpmMeasurementLib-resolution-betw.patch
 Patch0011: 0011-ArmVirtPkg-ArmVirtQemu-enable-the-DXE-phase-TPM2-sup.patch
 Patch0012: 0012-ArmVirtPkg-ArmVirtQemu-enable-the-TPM2-configuration.patch
 Patch0013: 0013-ArmVirtPkg-ArmVirtQemu-enable-TPM2-based-measured-bo.patch
+Patch0014: 0014-MdeModulePkg-Core-Dxe-assert-SectionInstance-invariant-in-FindChildNode.patch
+Patch0015: 0015-MdeModulePkg-Core-Dxe-limit-FwVol-encapsulation-section-recursion.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
@@ -222,6 +224,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Mon Jun 28 2021 Jiajie Li <lijiajie11@huawei.com> - 202002-6
+- Fix CVE-2021-28210
+
 * Tue Oct 27 2020 AlexChen <alex.chen@huawei.com> - 202002-5
 - remove build requires of python2
 
