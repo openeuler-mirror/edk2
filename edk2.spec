@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 7
+Release: 8
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -28,6 +28,7 @@ Patch0013: 0013-ArmVirtPkg-ArmVirtQemu-enable-TPM2-based-measured-bo.patch
 Patch0014: 0014-MdeModulePkg-Core-Dxe-assert-SectionInstance-invariant-in-FindChildNode.patch
 Patch0015: 0015-MdeModulePkg-Core-Dxe-limit-FwVol-encapsulation-section-recursion.patch
 Patch0016: 0016-ArmPkg-CompilerIntrinsicsLib-provide-atomics-intrins.patch
+Patch0017: 0017-MdeModulePkg-LzmaCustomDecompressLib-catch-4GB-uncom.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
@@ -225,6 +226,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Tue Aug 31 2021 miaoyubo <miaoyubo@huawei.com> - 202002-8
+- MdeModulePkg/LzmaCustomDecompressLib: catch 4GB+ uncompressed
+
 * Fri Jul 30 2021 Zhenyu Ye <yezhenyu2@huawei.com> - 202002-7
 - ArmPkg/CompilerIntrinsicsLib: provide atomics intrinsics
 
