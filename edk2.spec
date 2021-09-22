@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 8
+Release: 9
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -29,6 +29,16 @@ Patch0014: 0014-MdeModulePkg-Core-Dxe-assert-SectionInstance-invariant-in-FindCh
 Patch0015: 0015-MdeModulePkg-Core-Dxe-limit-FwVol-encapsulation-section-recursion.patch
 Patch0016: 0016-ArmPkg-CompilerIntrinsicsLib-provide-atomics-intrins.patch
 Patch0017: 0017-MdeModulePkg-LzmaCustomDecompressLib-catch-4GB-uncom.patch
+Patch0018: 0018-NetworkPkg-IScsiDxe-wrap-IScsiCHAP-source-files-to-8.patch
+Patch0019: 0019-NetworkPkg-IScsiDxe-simplify-ISCSI_CHAP_AUTH_DATA.In.patch
+Patch0020: 0020-NetworkPkg-IScsiDxe-clean-up-ISCSI_CHAP_AUTH_DATA.Ou.patch
+Patch0021: 0021-NetworkPkg-IScsiDxe-clean-up-library-class-dependenc.patch
+Patch0022: 0022-NetworkPkg-IScsiDxe-fix-potential-integer-overflow-i.patch
+Patch0023: 0023-NetworkPkg-IScsiDxe-assert-that-IScsiBinToHex-always.patch
+Patch0024: 0024-NetworkPkg-IScsiDxe-reformat-IScsiHexToBin-leading-c.patch
+Patch0025: 0025-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-hex-parsing.patch
+Patch0026: 0026-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-buffer-overflo.patch
+Patch0027: 0027-NetworkPkg-IScsiDxe-check-IScsiHexToBin-return-value.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
@@ -226,6 +236,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Wed Sep 22 2021 imxcc <xingchaochao@huawei.com> - 202002-9
+- fix cve-2021-38575
+
 * Tue Aug 31 2021 miaoyubo <miaoyubo@huawei.com> - 202002-8
 - MdeModulePkg/LzmaCustomDecompressLib: catch 4GB+ uncompressed
 
