@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 9
+Release: 10
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -39,6 +39,7 @@ Patch0024: 0024-NetworkPkg-IScsiDxe-reformat-IScsiHexToBin-leading-c.patch
 Patch0025: 0025-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-hex-parsing.patch
 Patch0026: 0026-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-buffer-overflo.patch
 Patch0027: 0027-NetworkPkg-IScsiDxe-check-IScsiHexToBin-return-value.patch
+Patch0028: 0028-MdeModulePkg-FPDT-Lock-boot-performance-table-addres.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
@@ -236,6 +237,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Wed Dec 1 2021 Jinhua Cao<caojinhua1@huawei.com> -202002-10
+- fix CVE-2021-28216
+
 * Wed Sep 22 2021 imxcc <xingchaochao@huawei.com> - 202002-9
 - fix cve-2021-38575
 
