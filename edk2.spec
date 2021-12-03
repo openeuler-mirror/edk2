@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 5
+Release: 6
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -20,6 +20,7 @@ Patch0005: 0003-SecurityPkg-DxeImageVerificationLib-catch-alignment-.patch
 Patch0006: 0004-MdeModulePkg-Core-Dxe-assert-SectionInstance-invariant-in-FindChildNode.patch
 Patch0007: 0005-MdeModulePkg-Core-Dxe-limit-FwVol-encapsulation-section-recursion.patch
 Patch0008: 0006-MdeModulePkg-LzmaCustomDecompressLib-catch-4GB-uncom.patch
+Patch0009: 0007-MdeModulePkg-FPDT-Lock-boot-performance-table-addres.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
 
@@ -215,6 +216,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Thu Dec 2 2020 Jinhua Cao<caojinhua1@huawei.com> - 202002-6
+- fix CVE-2021-28216
+
 * Tue Aug 31 2021 miaoyubo <miaoyubo@huawei.com> - 202002-5
 - MdeModulePkg/LzmaCustomDecompressLib: catch 4GB+ uncompressed buffer sizes
 
