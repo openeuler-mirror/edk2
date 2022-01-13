@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 10
+Release: 11
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -40,6 +40,8 @@ Patch0025: 0025-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-hex-parsing.patch
 Patch0026: 0026-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-buffer-overflo.patch
 Patch0027: 0027-NetworkPkg-IScsiDxe-check-IScsiHexToBin-return-value.patch
 Patch0028: 0028-MdeModulePkg-FPDT-Lock-boot-performance-table-addres.patch
+Patch0029: 0029-BaseTools-fix-ucs-2-lookup-on-python-3.9.patch
+Patch0030: 0030-BaseTools-Work-around-array.array.tostring-removal-i.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
@@ -237,6 +239,10 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Wed Jan 12 2022 Jinhua Cao<caojinhua1@huawei.com> - 202002-11
+- BaseTools: fix ucs-2 lookup on python3.9
+- BaseTools: Work around array.array.tostring() removal in python3.9
+
 * Wed Dec 1 2021 Jinhua Cao<caojinhua1@huawei.com> -202002-10
 - fix CVE-2021-28216
 
