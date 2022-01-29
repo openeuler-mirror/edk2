@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 11
+Release: 12
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -42,6 +42,14 @@ Patch0027: 0027-NetworkPkg-IScsiDxe-check-IScsiHexToBin-return-value.patch
 Patch0028: 0028-BaseTools-fix-ucs-2-lookup-on-python-3.9.patch
 Patch0029: 0029-BaseTools-Work-around-array.array.tostring-removal-i.patch
 Patch0030: 0030-MdeModulePkg-FPDT-Lock-boot-performance-table-addres.patch
+Patch0031: 0031-SecurityPkg-TPM-Import-PeiDxeTpmPlatformHierarchyLib.patch
+Patch0032: 0032-SecurityPkg-TPM-Fix-bugs-in-imported-PeiDxeTpmPlatfo.patch
+Patch0033: 0033-SecrutiyPkg-Tcg-Import-Tcg2PlatformDxe-from-edk2-pla.patch
+Patch0034: 0034-SecurityPkg-Tcg-Make-Tcg2PlatformDxe-buildable-and-f.patch
+Patch0035: 0035-SecurityPkg-Introduce-new-PCD-PcdRandomizePlatformHi.patch
+Patch0036: 0036-SecurityPkg-Tcg-Import-Tcg2PlatformPei-from-edk2-pla.patch
+Patch0037: 0037-SecurityPkg-Tcg-Make-Tcg2PlatformPei-buildable-and-f.patch
+Patch0038: 0038-SecurityPkg-Add-references-to-header-and-inf-files-t.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
@@ -239,6 +247,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Thu Jan 27 2022 Jinhua Cao <caojinhua1@huawei.com> - 202002-12
+- fix CVE-2021-38576
+
 * Tue Jan 18 2022 Jinhua Cao <caojinhua1@huawei.com> - 202002-11
 - fix CVE-2021-28216
 
