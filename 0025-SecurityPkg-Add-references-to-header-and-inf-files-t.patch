@@ -1,0 +1,68 @@
+From e031b8396ba1ad059f7c1dc6e28e9fc4ca6aaae9 Mon Sep 17 00:00:00 2001
+From: Stefan Berger <stefanb@linux.vnet.ibm.com>
+Date: Mon, 13 Sep 2021 22:21:06 +0800
+Subject: [PATCH 8/8] SecurityPkg: Add references to header and inf files to
+ SecurityPkg
+
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jiewen Yao <jiewen.yao@intel.com>
+---
+ SecurityPkg/SecurityPkg.dec |  4 ++++
+ SecurityPkg/SecurityPkg.dsc | 12 ++++++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/SecurityPkg/SecurityPkg.dec b/SecurityPkg/SecurityPkg.dec
+index 276ea6e2dd..beffd08772 100644
+--- a/SecurityPkg/SecurityPkg.dec
++++ b/SecurityPkg/SecurityPkg.dec
+@@ -68,6 +68,10 @@
+   #
+   Tcg2PhysicalPresenceLib|Include/Library/Tcg2PhysicalPresenceLib.h
+ 
++  ##  @libraryclass  Handle TPM 2.0 platform hierarchy configuration
++  #
++  TpmPlatformHierarchyLib|Include/Library/TpmPlatformHierarchyLib.h
++
+   ## @libraryclass  Provides interfaces about TCG storage generic command.
+   #
+   TcgStorageCoreLib|Include/Library/TcgStorageCoreLib.h
+diff --git a/SecurityPkg/SecurityPkg.dsc b/SecurityPkg/SecurityPkg.dsc
+index a2eeadda7a..8d5371295a 100644
+--- a/SecurityPkg/SecurityPkg.dsc
++++ b/SecurityPkg/SecurityPkg.dsc
+@@ -211,6 +211,8 @@
+ 
+   SecurityPkg/Library/HashLibTpm2/HashLibTpm2.inf
+ 
++  SecurityPkg/Library/PeiDxeTpmPlatformHierarchyLib/PeiDxeTpmPlatformHierarchyLib.inf
++
+   #
+   # TCG Storage.
+   #
+@@ -272,6 +274,11 @@
+       NULL|SecurityPkg/Library/HashInstanceLibSm3/HashInstanceLibSm3.inf
+   }
+ 
++  SecurityPkg/Tcg/Tcg2PlatformPei/Tcg2PlatformPei.inf {
++    <LibraryClasses>
++      TpmPlatformHierarchyLib|SecurityPkg/Library/PeiDxeTpmPlatformHierarchyLib/PeiDxeTpmPlatformHierarchyLib.inf
++  }
++
+   SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.inf {
+     <LibraryClasses>
+       Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterDxe.inf
+@@ -288,6 +295,11 @@
+       Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibTcg2/Tpm2DeviceLibTcg2.inf
+   }
+ 
++  SecurityPkg/Tcg/Tcg2PlatformDxe/Tcg2PlatformDxe.inf {
++    <LibraryClasses>
++      TpmPlatformHierarchyLib|SecurityPkg/Library/PeiDxeTpmPlatformHierarchyLib/PeiDxeTpmPlatformHierarchyLib.inf
++  }
++
+   #
+   # Hash2
+   #
+-- 
+2.27.0
+
