@@ -1,47 +1,32 @@
-%global stable_date 202002
+%global stable_date 202011
 %global release_tag edk2-stable%{stable_date}
 %global openssl_version 1.1.1f
 %global _python_bytecompile_extra 0
 
 Name: edk2
 Version: %{stable_date}
-Release: 11
+Release: 1
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
 Source0: https://github.com/tianocore/edk2/archive/%{release_tag}.tar.gz
 Source1: openssl-%{openssl_version}.tar.gz
+Source2: brotli.tar.gz
 
-Patch0001: 0001-CryptoPkg-OpensslLib-Modify-process_files.pl-for-Ope.patch
-Patch0002: 0002-CryptoPkg-Upgrade-OpenSSL-to-1.1.1f.patch
-Patch0003: 0003-OvmfPkg-Tcg2ConfigPei-introduce-a-signalling-PPI-to-.patch
-Patch0004: 0004-ArmVirtPkg-PlatformPeiLib-make-PcdLib-dependency-exp.patch
-Patch0005: 0005-ArmVirtPkg-PlatformPeiLib-discover-the-TPM-base-addr.patch
-Patch0006: 0006-ArmVirtPkg-implement-ArmVirtPsciResetSystemPeiLib.patch
-Patch0007: 0007-ArmVirtPkg-ArmVirtQemu-add-ResetSystem-PEIM-for-upco.patch
-Patch0008: 0008-ArmVirtPkg-ArmVirtQemu-enable-TPM2-support-in-the-PE.patch
-Patch0009: 0009-ArmVirtPkg-avoid-DxeTpmMeasurementLib-in-shared-.DSC.patch
-Patch0010: 0010-ArmVirtPkg-unshare-TpmMeasurementLib-resolution-betw.patch
-Patch0011: 0011-ArmVirtPkg-ArmVirtQemu-enable-the-DXE-phase-TPM2-sup.patch
-Patch0012: 0012-ArmVirtPkg-ArmVirtQemu-enable-the-TPM2-configuration.patch
-Patch0013: 0013-ArmVirtPkg-ArmVirtQemu-enable-TPM2-based-measured-bo.patch
-Patch0014: 0014-MdeModulePkg-Core-Dxe-assert-SectionInstance-invariant-in-FindChildNode.patch
-Patch0015: 0015-MdeModulePkg-Core-Dxe-limit-FwVol-encapsulation-section-recursion.patch
-Patch0016: 0016-ArmPkg-CompilerIntrinsicsLib-provide-atomics-intrins.patch
-Patch0017: 0017-MdeModulePkg-LzmaCustomDecompressLib-catch-4GB-uncom.patch
-Patch0018: 0018-NetworkPkg-IScsiDxe-wrap-IScsiCHAP-source-files-to-8.patch
-Patch0019: 0019-NetworkPkg-IScsiDxe-simplify-ISCSI_CHAP_AUTH_DATA.In.patch
-Patch0020: 0020-NetworkPkg-IScsiDxe-clean-up-ISCSI_CHAP_AUTH_DATA.Ou.patch
-Patch0021: 0021-NetworkPkg-IScsiDxe-clean-up-library-class-dependenc.patch
-Patch0022: 0022-NetworkPkg-IScsiDxe-fix-potential-integer-overflow-i.patch
-Patch0023: 0023-NetworkPkg-IScsiDxe-assert-that-IScsiBinToHex-always.patch
-Patch0024: 0024-NetworkPkg-IScsiDxe-reformat-IScsiHexToBin-leading-c.patch
-Patch0025: 0025-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-hex-parsing.patch
-Patch0026: 0026-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-buffer-overflo.patch
-Patch0027: 0027-NetworkPkg-IScsiDxe-check-IScsiHexToBin-return-value.patch
-Patch0028: 0028-MdeModulePkg-FPDT-Lock-boot-performance-table-addres.patch
-Patch0029: 0029-BaseTools-fix-ucs-2-lookup-on-python-3.9.patch
-Patch0030: 0030-BaseTools-Work-around-array.array.tostring-removal-i.patch
+# for CVE-2021-38575
+Patch0001: 0001-NetworkPkg-IScsiDxe-wrap-IScsiCHAP-source-files-to-8.patch
+Patch0002: 0002-NetworkPkg-IScsiDxe-simplify-ISCSI_CHAP_AUTH_DATA.In.patch
+Patch0003: 0003-NetworkPkg-IScsiDxe-clean-up-ISCSI_CHAP_AUTH_DATA.Ou.patch
+Patch0004: 0004-NetworkPkg-IScsiDxe-clean-up-library-class-dependenc.patch
+Patch0005: 0005-NetworkPkg-IScsiDxe-fix-potential-integer-overflow-i.patch
+Patch0006: 0006-NetworkPkg-IScsiDxe-assert-that-IScsiBinToHex-always.patch
+Patch0007: 0007-NetworkPkg-IScsiDxe-reformat-IScsiHexToBin-leading-c.patch
+Patch0008: 0008-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-hex-parsing.patch
+Patch0009: 0009-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-buffer-overflo.patch
+Patch0010: 0010-NetworkPkg-IScsiDxe-check-IScsiHexToBin-return-value.patch
+
+# for CVE-2021-28216
+Patch0011: 0011-MdeModulePkg-FPDT-Lock-boot-performance-table-addres.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
@@ -93,6 +78,8 @@ EFI Development Kit II Open Virtual Machine Firmware (ia32)
 %prep
 %setup -n edk2-%{release_tag}
 tar -xf %{SOURCE1} -C CryptoPkg/Library/OpensslLib/openssl --strip-components=1
+tar -xf %{SOURCE2} -C MdeModulePkg/Library/BrotliCustomDecompressLib/brotli --strip-components=1
+tar -xf %{SOURCE2} -C BaseTools/Source/C/BrotliCompress/brotli --strip-components=1
 %autopatch -p1
 
 %build
@@ -175,7 +162,7 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %files devel
 %license License.txt
 %license LICENSE.openssl
-%{_bindir}/Brotli
+%{_bindir}/BrotliCompress
 %{_bindir}/DevicePath
 %{_bindir}/EfiRom
 %{_bindir}/GenCrc32
@@ -239,6 +226,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Mon Feb 7 2022 Jinhua Cao<caojinhua1@huawei.com> - 202011-1
+- update edk2 to stable 202011
+
 * Wed Jan 12 2022 Jinhua Cao<caojinhua1@huawei.com> - 202002-11
 - BaseTools: fix ucs-2 lookup on python3.9
 - BaseTools: Work around array.array.tostring() removal in python3.9
