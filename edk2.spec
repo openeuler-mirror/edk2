@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 2
+Release: 3
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -37,6 +37,8 @@ Patch0016: 0016-SecurityPkg-Introduce-new-PCD-PcdRandomizePlatformHi.patch
 Patch0017: 0017-SecurityPkg-Tcg-Import-Tcg2PlatformPei-from-edk2-pla.patch
 Patch0018: 0018-SecurityPkg-Tcg-Make-Tcg2PlatformPei-buildable-and-f.patch
 Patch0019: 0019-SecurityPkg-Add-references-to-header-and-inf-files-t.patch
+
+Patch0020: 0020-OvmfPkg-VirtioNetDxe-Extend-the-RxBufferSize-to-avoi.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 

@@ -1,0 +1,50 @@
+From 85a19a714c4b4702edc59db0a3419f48fffe2b0a Mon Sep 17 00:00:00 2001
+From: Jinhua Cao <caojinhua1@huawei.com>
+Date: Thu, 17 Feb 2022 17:38:41 +0800
+Subject: [PATCH] OvmfPkg: VirtioNetDxe: Extend the RxBufferSize to avoid data
+ truncation
+
+1822 net card needs at least 1536 bytes for DMA, even we never negotiate
+VIRTIO_NET_F_MRG_RXBUF. The original max size of packet is 15144 which would
+cause data trucation. Now we extend the RxBufSize to 9014(Jumbo Frame type)
+so that we can avoid it.
+
+Signed-off-by: Jinhua Cao <caojinhua1@huawei.com>
+---
+ OvmfPkg/Include/IndustryStandard/Virtio095Net.h | 7 +++++++
+ OvmfPkg/VirtioNetDxe/SnpInitialize.c            | 3 ++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/OvmfPkg/Include/IndustryStandard/Virtio095Net.h b/OvmfPkg/Include/IndustryStandard/Virtio095Net.h
+index 9c0ed5ed24..28f5cc0899 100644
+--- a/OvmfPkg/Include/IndustryStandard/Virtio095Net.h
++++ b/OvmfPkg/Include/IndustryStandard/Virtio095Net.h
+@@ -88,4 +88,11 @@ typedef struct {
+ #define VIRTIO_NET_S_LINK_UP  BIT0
+ #define VIRTIO_NET_S_ANNOUNCE BIT1
+ 
++//
++// 1822 net card needs at least 1536 bytes for DMA, even we never negotiate
++// VIRTIO_NET_F_MRG_RXBUF. The original max size of packet is 15144 which would
++// cause data trucation. Now we extend the RxBufSize to 9014(Jumbo Frame type)
++// so that we can avoid it.
++#define VIRTIO_RXBUF_JUMBO_PADDING 7500
++
+ #endif // _VIRTIO_0_9_5_NET_H_
+diff --git a/OvmfPkg/VirtioNetDxe/SnpInitialize.c b/OvmfPkg/VirtioNetDxe/SnpInitialize.c
+index bb3b552d68..6febfea3bb 100644
+--- a/OvmfPkg/VirtioNetDxe/SnpInitialize.c
++++ b/OvmfPkg/VirtioNetDxe/SnpInitialize.c
+@@ -337,7 +337,8 @@ VirtioNetInitRx (
+   //   and Ethernet payload).
+   //
+   RxBufSize = VirtioNetReqSize +
+-              (Dev->Snm.MediaHeaderSize + Dev->Snm.MaxPacketSize);
++              (Dev->Snm.MediaHeaderSize + Dev->Snm.MaxPacketSize) +
++               VIRTIO_RXBUF_JUMBO_PADDING;
+ 
+   //
+   // Limit the number of pending RX packets if the queue is big. The division
+-- 
+2.27.0
+
