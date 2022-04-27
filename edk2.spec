@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 3
+Release: 4
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -238,17 +238,23 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
-* Tue Feb 15 2020 Jinhua Cao<caojinhua1@huawei.com> -202011-2
+* Wed Apr 27 2022 yezengruan <yezengruan@huawei.com> - 202211-4
+- update the format of changelog
+
+* Thu Feb 17 2022 Jinhua Cao <caojinhua1@huawei.com> - 202011-3
+- OvmfPkg: VirtioNetDxe: Extend the RxBufferSize to avoid data truncation
+
+* Tue Feb 15 2020 Jinhua Cao <caojinhua1@huawei.com> - 202011-2
 - fix CVE-2021-38576
 
-* Mon Feb 7 2022 Jinhua Cao<caojinhua1@huawei.com> - 202011-1
+* Mon Feb 7 2022 Jinhua Cao <caojinhua1@huawei.com> - 202011-1
 - update edk2 to stable 202011
 
-* Wed Jan 12 2022 Jinhua Cao<caojinhua1@huawei.com> - 202002-11
+* Wed Jan 12 2022 Jinhua Cao <caojinhua1@huawei.com> - 202002-11
 - BaseTools: fix ucs-2 lookup on python3.9
 - BaseTools: Work around array.array.tostring() removal in python3.9
 
-* Wed Dec 1 2021 Jinhua Cao<caojinhua1@huawei.com> -202002-10
+* Wed Dec 1 2021 Jinhua Cao <caojinhua1@huawei.com> - 202002-10
 - fix CVE-2021-28216
 
 * Wed Sep 22 2021 imxcc <xingchaochao@huawei.com> - 202002-9
