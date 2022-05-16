@@ -244,7 +244,7 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 * Thu Feb 17 2022 Jinhua Cao <caojinhua1@huawei.com> - 202011-3
 - OvmfPkg: VirtioNetDxe: Extend the RxBufferSize to avoid data truncation
 
-* Tue Feb 15 2020 Jinhua Cao <caojinhua1@huawei.com> - 202011-2
+* Tue Feb 15 2022 Jinhua Cao <caojinhua1@huawei.com> - 202011-2
 - fix CVE-2021-38576
 
 * Mon Feb 7 2022 Jinhua Cao <caojinhua1@huawei.com> - 202011-1
