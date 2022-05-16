@@ -234,7 +234,7 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
-* Fri Jan 28 2021 Jinhua Cao<caojinhua1@huawei.com> - 202002-8
+* Fri Jan 28 2022 Jinhua Cao<caojinhua1@huawei.com> - 202002-8
 - fix CVE-2021-38576
 
 * Thu Dec 2 2021 Jinhua Cao<caojinhua1@huawei.com> - 202002-7
