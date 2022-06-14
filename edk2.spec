@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 4
+Release: 5
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -116,6 +116,8 @@ COMMON_FLAGS="-D NETWORK_IP6_ENABLE"
 BUILD_OPTION="$BUILD_OPTION -D SECURE_BOOT_ENABLE=TRUE"
 BUILD_OPTION="$BUILD_OPTION -D TPM2_ENABLE=TRUE"
 BUILD_OPTION="$BUILD_OPTION -D TPM2_CONFIG_ENABLE=TRUE"
+BUILD_OPTION="$BUILD_OPTION -D TPM_ENABLE=TRUE"
+BUILD_OPTION="$BUILD_OPTION -D TPM_CONFIG_ENABLE=TRUE"
 build $BUILD_OPTION
 
 %install
@@ -238,7 +240,10 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
-* Wed Apr 27 2022 yezengruan <yezengruan@huawei.com> - 202211-4
+* Tue Jun 14 2022 miaoyubo <miaoyubo@huawei.com> - 202011-5
+- Enable TPM for pcr0-7
+
+* Wed Apr 27 2022 yezengruan <yezengruan@huawei.com> - 202011-4
 - update the format of changelog
 
 * Thu Feb 17 2022 Jinhua Cao <caojinhua1@huawei.com> - 202011-3
