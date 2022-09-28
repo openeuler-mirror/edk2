@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 5
+Release: 6
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -39,6 +39,8 @@ Patch0018: 0018-SecurityPkg-Tcg-Make-Tcg2PlatformPei-buildable-and-f.patch
 Patch0019: 0019-SecurityPkg-Add-references-to-header-and-inf-files-t.patch
 
 Patch0020: 0020-OvmfPkg-VirtioNetDxe-Extend-the-RxBufferSize-to-avoi.patch
+
+Patch0021: 0021-UefiCpuPkg-Move-MigrateGdt-from-DiscoverMemory-to-Te.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
@@ -240,6 +242,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Thu Sep 29 2022 chenhuiying<chenhuiying4@huawei.com> - 202011-6
+* fix CVE-2019-11098
+
 * Tue Jun 14 2022 miaoyubo <miaoyubo@huawei.com> - 202011-5
 - Enable TPM for pcr0-7
 
