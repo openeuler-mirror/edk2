@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 9
+Release: 10
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -40,6 +40,16 @@ Patch0025: 0023-SecurityPkg-Tcg-Import-Tcg2PlatformPei-from-edk2-pla.patch
 Patch0026: 0024-SecurityPkg-Tcg-Make-Tcg2PlatformPei-buildable-and-f.patch
 Patch0027: 0025-SecurityPkg-Add-references-to-header-and-inf-files-t.patch
 Patch0028: 0026-CryptoPkg-BaseCryptLib-fix-NULL-dereference-CVE-2019.patch
+Patch0029: 0027-UefiCpuPkg-Correct-some-typos.patch
+Patch0030: 0028-UefiCpuPkg-SecMigrationPei-Add-initial-PEIM-CVE-2019.patch
+Patch0031: 0029-MdeModulePkg-PeiCore-Enable-T-RAM-evacuation-in-PeiC.patch
+Patch0032: 0030-SecurityPkg-Tcg2Pei-Use-Migrated-FV-Info-Hob-for-cal.patch
+Patch0033: 0031-MdeModulePkg-Add-new-PCD-to-control-the-evacuate-tem.patch
+Patch0034: 0032-MdeModulePkg-Core-Create-Migrated-FV-Info-Hob-for-ca.patch
+Patch0035: 0033-UefiCpuPkg-CpuMpPei-Add-GDT-migration-support-CVE-20.patch
+Patch0036: 0034-UefiCpuPkg-CpuMpPei-Enable-paging-and-set-NP-flag-to.patch
+Patch0037: 0035-SecurityPkg-TcgPei-Use-Migrated-FV-Info-Hob-for-calc.patch
+Patch0038: 0036-UefiCpuPkg-Move-MigrateGdt-from-DiscoverMemory-to-Te.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
 
@@ -235,8 +245,11 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Thu Sep 29 2022 chenhuiying<chenhuiying4@huawei.com> - 202002-10
+- fix CVE-2019-11098
+
 * Thu Sep 29 2022 chenhuiying<chenhuiying4@huawei.com> - 202002-9
-* fix CVE-2019-14584
+- fix CVE-2019-14584
 
 * Fri Jan 28 2022 Jinhua Cao<caojinhua1@huawei.com> - 202002-8
 - fix CVE-2021-38576
