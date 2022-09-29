@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 8
+Release: 9
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -39,6 +39,7 @@ Patch0024: 0022-SecurityPkg-Introduce-new-PCD-PcdRandomizePlatformHi.patch
 Patch0025: 0023-SecurityPkg-Tcg-Import-Tcg2PlatformPei-from-edk2-pla.patch
 Patch0026: 0024-SecurityPkg-Tcg-Make-Tcg2PlatformPei-buildable-and-f.patch
 Patch0027: 0025-SecurityPkg-Add-references-to-header-and-inf-files-t.patch
+Patch0028: 0026-CryptoPkg-BaseCryptLib-fix-NULL-dereference-CVE-2019.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
 
@@ -234,6 +235,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Thu Sep 29 2022 chenhuiying<chenhuiying4@huawei.com> - 202002-9
+* fix CVE-2019-14584
+
 * Fri Jan 28 2022 Jinhua Cao<caojinhua1@huawei.com> - 202002-8
 - fix CVE-2021-38576
 
