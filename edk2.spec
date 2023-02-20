@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 7
+Release: 8
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -43,7 +43,7 @@ Patch0020: 0020-OvmfPkg-VirtioNetDxe-Extend-the-RxBufferSize-to-avoi.patch
 Patch0021: 0021-UefiCpuPkg-Move-MigrateGdt-from-DiscoverMemory-to-Te.patch
 
 Patch0022: 0022-MdeModulePkg-PiSmmCore-SmmEntryPoint-underflow-CVE-2.patch
-
+Patch0023: 0023-PATCH-Avoid-dangling-ptrs-in-header-and-data-params-.patch
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python3-unversioned-command
 
 %description
@@ -244,6 +244,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Mon Feb 20 2023 shaodenghui<shaodenghui@huawei.com> - 202011-8
+- fix CVE-2022-4450
+
 * Tue Nov 29 2022 chenhuiying<chenhuiying4@huawei.com> - 202011-7
 - fix CVE-2021-38578
 
