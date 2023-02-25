@@ -1,5 +1,5 @@
 From a114dc3c9af48a8f8ed22e738944a9c3e830a088 Mon Sep 17 00:00:00 2001
-From: s00803682 <shaodenghui@huawei.com>
+From Shao Denghui <shaodenghui@huawei.com>
 Date: Mon, 20 Feb 2023 21:59:31 +0800
 Subject: [PATCH] [PATCH] Avoid dangling ptrs in header and data params for
  PEM_read_bio_ex In the event of a failure in PEM_read_bio_ex() we free the
@@ -19,7 +19,7 @@ Reference: https://github.com/openssl/openssl/commit/ee6243f3947107d655f6dee96f6
 Reviewed-by: Paul Dale <pauli@openssl.org>
 Reviewed-by: Tomas Mraz <tomas@openssl.org>
 
-Signed-off-by: s00803682 <shaodenghui@huawei.com>
+Signed-off-by: Shao Denghui <shaodenghui@huawei.com>
 ---
  CryptoPkg/Library/OpensslLib/openssl/crypto/pem/pem_lib.c | 2 ++
  1 file changed, 2 insertions(+)
