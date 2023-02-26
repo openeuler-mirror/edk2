@@ -1,0 +1,57 @@
+From 7dd5a23212e3c7bf25a9cd7689681beb89b2d20f Mon Sep 17 00:00:00 2001
+From Shao Denghui <shaodenghui@huawei.com>
+Date: Tue, 21 Feb 2023 20:12:59 +0800
+Subject: [PATCH] [PATCH] pk7_doit.c: Check return of BIO_set_md() calls
+
+These calls invoke EVP_DigestInit() which can fail for digests
+with implicit fetches. Subsequent EVP_DigestUpdate() from BIO_write()
+or EVP_DigestFinal() from BIO_read() will segfault on NULL
+dereference. This can be triggered by an attacker providing
+PKCS7 data digested with MD4 for example if the legacy provider
+is not loaded.
+
+If BIO_set_md() fails the md BIO cannot be used.
+
+CVE-2023-0401
+
+Reference: https://github.com/openssl/openssl/commit/6eebe6c0238178356114a96a7858f36b24172847
+
+Reviewed-by: Paul Dale <pauli@openssl.org>
+Reviewed-by: Richard Levitte <levitte@openssl.org>
+
+Signed-off-by: Shao Denghui <shaodenghui@huawei.com>
+---
+ .../Library/OpensslLib/openssl/crypto/pkcs7/pk7_doit.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/CryptoPkg/Library/OpensslLib/openssl/crypto/pkcs7/pk7_doit.c b/CryptoPkg/Library/OpensslLib/openssl/crypto/pkcs7/pk7_doit.c
+index f63fbc5..bbfcf27 100644
+--- a/CryptoPkg/Library/OpensslLib/openssl/crypto/pkcs7/pk7_doit.c
++++ b/CryptoPkg/Library/OpensslLib/openssl/crypto/pkcs7/pk7_doit.c
+@@ -67,7 +67,10 @@ static int PKCS7_bio_add_digest(BIO **pbio, X509_ALGOR *alg)
+         goto err;
+     }
+ 
+-    BIO_set_md(btmp, md);
++    if (BIO_set_md(btmp, md) <= 0) {
++        PKCS7err(PKCS7_F_PKCS7_BIO_ADD_DIGEST, ERR_R_BIO_LIB);
++        goto err;
++    }
+     if (*pbio == NULL)
+         *pbio = btmp;
+     else if (!BIO_push(*pbio, btmp)) {
+@@ -454,7 +457,10 @@ BIO *PKCS7_dataDecode(PKCS7 *p7, EVP_PKEY *pkey, BIO *in_bio, X509 *pcert)
+                 goto err;
+             }
+ 
+-            BIO_set_md(btmp, evp_md);
++            if (BIO_set_md(btmp, evp_md) <= 0) {
++                PKCS7err(PKCS7_F_PKCS7_DATADECODE, ERR_R_BIO_LIB);
++                goto err;
++            }
+             if (out == NULL)
+                 out = btmp;
+             else
+-- 
+2.27.0
+
