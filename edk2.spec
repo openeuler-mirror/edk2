@@ -5,7 +5,7 @@
 
 Name: edk2
 Version: %{stable_date}
-Release: 12
+Release: 13
 Summary: EFI Development Kit II
 License: BSD-2-Clause-Patent
 URL: https://github.com/tianocore/edk2
@@ -52,6 +52,7 @@ Patch0037: 0035-SecurityPkg-TcgPei-Use-Migrated-FV-Info-Hob-for-calc.patch
 Patch0038: 0036-UefiCpuPkg-Move-MigrateGdt-from-DiscoverMemory-to-Te.patch
 Patch0039: 0037-MdeModulePkg-PiSmmCore-SmmEntryPoint-underflow-CVE-2.patch
 Patch0040: 0038-PATCH-Avoid-dangling-ptrs-in-header-and-data-params-.patch
+Patch0041: 0039-PATCH-pk7_doit.c-Check-return-of-BIO_set_md-calls.patch
 
 BuildRequires: acpica-tools gcc gcc-c++ libuuid-devel python3 bc nasm python2
 
@@ -247,6 +248,9 @@ chmod +x %{buildroot}%{_bindir}/Rsa2048Sha256GenerateKeys
 %endif
 
 %changelog
+* Sun Feb 26 2023 shaodenghui<shaodenghui@huawei.com> - 202002-13
+- fix CVE-2023-0401
+
 * Sun Feb 26 2023 shaodenghui<shaodenghui@huawei.com> - 202002-12
 - fix CVE-2022-4450
 
