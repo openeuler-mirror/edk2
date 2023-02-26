@@ -1,0 +1,43 @@
+From a114dc3c9af48a8f8ed22e738944a9c3e830a088 Mon Sep 17 00:00:00 2001
+From: Shao Denghui <shaodenghui@huawei.com>
+Date: Mon, 20 Feb 2023 21:59:31 +0800
+Subject: [PATCH] [PATCH] Avoid dangling ptrs in header and data params for
+ PEM_read_bio_ex In the event of a failure in PEM_read_bio_ex() we free the
+ buffers we allocated for the header and data buffers. However we were not
+ clearing the ptrs stored in *header and *data. Since, on success, the caller
+ is responsible for freeing these ptrs this can potentially lead to a double
+ free if the caller frees them even on failure.
+
+Thanks to Dawei Wang for reporting this issue.
+
+Based on a proposed patch by Kurt Roeckx.
+
+CVE-2022-4450
+
+Reference: https://github.com/openssl/openssl/commit/ee6243f3947107d655f6dee96f63861561a5aaeb
+
+Reviewed-by: Paul Dale <pauli@openssl.org>
+Reviewed-by: Tomas Mraz <tomas@openssl.org>
+
+Signed-off-by: Shao Denghui <shaodenghui@huawei.com>
+---
+ CryptoPkg/Library/OpensslLib/openssl/crypto/pem/pem_lib.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/CryptoPkg/Library/OpensslLib/openssl/crypto/pem/pem_lib.c b/CryptoPkg/Library/OpensslLib/openssl/crypto/pem/pem_lib.c
+index 64baf71..6c7c4fe 100644
+--- a/CryptoPkg/Library/OpensslLib/openssl/crypto/pem/pem_lib.c
++++ b/CryptoPkg/Library/OpensslLib/openssl/crypto/pem/pem_lib.c
+@@ -940,7 +940,9 @@ int PEM_read_bio_ex(BIO *bp, char **name_out, char **header,
+     *data = pem_malloc(len, flags);
+     if (*header == NULL || *data == NULL) {
+         pem_free(*header, flags, 0);
++        *header = NULL;
+         pem_free(*data, flags, 0);
++        *data = NULL;
+         goto end;
+     }
+     BIO_read(headerB, *header, headerlen);
+-- 
+2.27.0
+
